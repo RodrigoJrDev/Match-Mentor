@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/nameInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Name" />
+
+    <EditText
+        android:id="@+id/experienceInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Experience" />
+
+    <EditText
+        android:id="@+id/skillsInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Skills (comma-separated)" />
+
+    <Button
+        android:id="@+id/createButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create User" />
+
+</LinearLayout>

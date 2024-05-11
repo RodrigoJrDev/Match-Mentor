@@ -2,18 +2,18 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
-    id("com.google.gms.google-services")
+    //id("com.google.gms.google-services")
 }
 
 android {
     namespace = "com.example.matchmentor"
-    compileSdk = 26
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.matchmentor"
         minSdk = 21
         //noinspection ExpiredTargetSdkVersion
-        targetSdk = 26
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -41,6 +41,7 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -62,6 +63,10 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.constraintlayout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -89,7 +94,7 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:2.7.2")
 
     // Firebase Cloud Messaging
-    implementation("com.google.firebase:firebase-messaging:23.2.1")
+    //implementation("com.google.firebase:firebase-messaging:23.2.1")
 
     // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
