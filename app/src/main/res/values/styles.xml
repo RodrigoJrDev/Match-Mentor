@@ -14,4 +14,12 @@
         <!-- Other style attributes -->
     </style>
 
+    <style name="AppButton" parent="Widget.AppCompat.Button">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:fontFamily">@font/poppins_medium</item>
+        <item name="android:background">@drawable/button_rounded</item>
+        <item name="android:gravity">center</item>
+    </style>
+
 </resources>
