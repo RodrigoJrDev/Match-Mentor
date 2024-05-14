@@ -1,5 +1,6 @@
 package com.example.matchmentor.repository
 
+import com.example.matchmentor.model.MentorProfile
 import retrofit2.Call
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -13,19 +14,19 @@ import retrofit2.http.Part
 import com.example.matchmentor.model.UserProfile
 import okhttp3.ResponseBody
 
-interface UserProfileService {
+interface MentorProfileService {
 
-    @POST("usuarios.php")
-    fun createProfile(@Body userProfile: UserProfile): Call<ResponseBody>
+    @POST("mentores.php")
+    fun createMentor(@Body mentorProfile: MentorProfile): Call<ResponseBody>
 
-    @GET("usuarios.php")
-    fun getProfiles(): Call<List<UserProfile>>
+    @GET("mentores.php")
+    fun getMentores(): Call<List<MentorProfile>>
 
-    @PUT("usuarios.php")
-    fun updateProfile(@Body profile: UserProfile): Call<Void>
+    @PUT("mentores.php")
+    fun updateMentor(@Body profile: MentorProfile): Call<Void>
 
-    @DELETE("usuarios.php")
-    fun deleteProfile(@Body profile: UserProfile): Call<Void>
+    @DELETE("mentores.php")
+    fun deleteMentor(@Body profile: MentorProfile): Call<Void>
 
     @Multipart
     @POST("upload_image.php")

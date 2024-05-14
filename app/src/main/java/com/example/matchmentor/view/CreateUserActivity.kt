@@ -12,6 +12,9 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.matchmentor.R
 import com.example.matchmentor.model.UserProfile
 import com.example.matchmentor.repository.UserProfileService
+import okhttp3.ResponseBody
+import org.json.JSONException
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -46,6 +49,7 @@ class CreateUserActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_user)
+        supportActionBar?.hide()
 
         emailAluno = findViewById(R.id.textEmailAluno)
         nomeAluno = findViewById(R.id.textNomeAluno)
@@ -118,18 +122,34 @@ class CreateUserActivity : AppCompatActivity() {
 
         val userProfile = UserProfile(nome, sobrenome, idade, cidade, areaInteresse, profissao, descricao, foto, email, senha)
 
-        userProfileService.createProfile(userProfile).enqueue(object : Callback<Void> {
-            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+        userProfileService.createProfile(userProfile).enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.isSuccessful) {
                     Toast.makeText(this@CreateUserActivity, "Conta criada com sucesso.", Toast.LENGTH_LONG).show()
+
+                    val intent = Intent(this@CreateUserActivity, LoginActivity::class.java)
+                    startActivity(intent)
+                    finish()
                 } else {
-                    Toast.makeText(this@CreateUserActivity, "Erro ao criar conta: ${response.code()} ${response.message()}", Toast.LENGTH_LONG).show()
+                    val errorMessage = response.errorBody()?.string()?.let {
+                        // Tente extrair a mensagem de erro do JSON
+                        try {
+                            val jsonObj = JSONObject(it)
+                            jsonObj.getString("message")
+                        } catch (e: JSONException) {
+                            "Erro ao criar conta: ${response.code()} ${response.message()}"
+                        }
+                    } ?: "Erro ao criar conta: ${response.code()} ${response.message()}"
+
+                    Toast.makeText(this@CreateUserActivity, errorMessage, Toast.LENGTH_LONG).show()
                 }
             }
 
-            override fun onFailure(call: Call<Void>, t: Throwable) {
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 Toast.makeText(this@CreateUserActivity, "Falha ao criar conta: ${t.message}", Toast.LENGTH_LONG).show()
             }
         })
+
+
     }
 }
