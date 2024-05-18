@@ -30,5 +30,5 @@ interface MentorProfileService {
 
     @Multipart
     @POST("upload_image.php")
-    fun uploadImage(@Part image: MultipartBody.Part, @Part("email") email: RequestBody): Call<Void>
+    fun uploadImage(@Part file: MultipartBody.Part): Call<ResponseBody>
 }

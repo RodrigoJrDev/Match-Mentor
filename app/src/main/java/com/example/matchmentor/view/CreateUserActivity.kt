@@ -1,17 +1,27 @@
 package com.example.matchmentor.view
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
+import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.example.matchmentor.R
 import com.example.matchmentor.model.UserProfile
 import com.example.matchmentor.repository.UserProfileService
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import org.json.JSONException
 import org.json.JSONObject
@@ -20,7 +30,8 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-
+import java.io.File
+import kotlin.random.Random
 
 class CreateUserActivity : AppCompatActivity() {
 
@@ -45,6 +56,7 @@ class CreateUserActivity : AppCompatActivity() {
         .build()
 
     private val userProfileService = retrofit.create(UserProfileService::class.java)
+    private var uploadedImageName: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,7 +76,19 @@ class CreateUserActivity : AppCompatActivity() {
         btnCadastrarAluno = findViewById(R.id.btnCadastrarAluno)
 
         btnChoosePhoto.setOnClickListener {
-            openGallery()
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                openGallery()
+            } else {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                    PERMISSION_CODE
+                )
+            }
         }
 
         btnCadastrarAluno.setOnClickListener {
@@ -84,11 +108,71 @@ class CreateUserActivity : AppCompatActivity() {
         startActivityForResult(intent, IMAGE_PICK_CODE)
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSION_CODE && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            openGallery()
+        } else {
+            Toast.makeText(this, "Permissão negada", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == IMAGE_PICK_CODE) {
-            imageViewUserPhoto.setImageURI(data?.data)  // Mostrar a imagem selecionada
+            val imageUri = data?.data
+            imageViewUserPhoto.setImageURI(imageUri)
+
+            val fileName = generateRandomFileName() + ".jpg"
+            val filePath = getRealPathFromURI(imageUri!!)
+            uploadImage(filePath, fileName)
         }
+    }
+
+    private fun generateRandomFileName(): String {
+        val charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+        return (1..10)
+            .map { charset.random() }
+            .joinToString("")
+    }
+
+    private fun uploadImage(filePath: String, fileName: String) {
+        val file = File(filePath)
+        val requestFile = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
+        val body = MultipartBody.Part.createFormData("file", fileName, requestFile)
+
+        val call = userProfileService.uploadImage(body)
+        call.enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    uploadedImageName = fileName
+                    Toast.makeText(this@CreateUserActivity, "Imagem enviada com sucesso", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@CreateUserActivity, "Erro ao enviar imagem", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Toast.makeText(this@CreateUserActivity, "Falha ao enviar imagem: ${t.message}", Toast.LENGTH_SHORT).show()
+                Log.d("ErrorImage", t.message.toString())
+            }
+        })
+    }
+
+    private fun getRealPathFromURI(uri: Uri): String {
+        var path = ""
+        val cursor = contentResolver.query(uri, null, null, null, null)
+        cursor?.let {
+            it.moveToFirst()
+            val index = it.getColumnIndex(MediaStore.Images.ImageColumns.DATA)
+            path = it.getString(index)
+            it.close()
+        }
+        return path
     }
 
     private fun validateFields(): String {
@@ -118,7 +202,7 @@ class CreateUserActivity : AppCompatActivity() {
         val areaInteresse = areaDeInteresse.text.toString().trim()
         val profissao = profissaoAluno.text.toString().trim()
         val descricao = descricaoAluno.text.toString().trim()
-        val foto = "URL_da_Foto" // Ajustar conforme necessário
+        val foto = uploadedImageName ?: ""
 
         val userProfile = UserProfile(nome, sobrenome, idade, cidade, areaInteresse, profissao, descricao, foto, email, senha)
 
@@ -149,7 +233,5 @@ class CreateUserActivity : AppCompatActivity() {
                 Toast.makeText(this@CreateUserActivity, "Falha ao criar conta: ${t.message}", Toast.LENGTH_LONG).show()
             }
         })
-
-
     }
 }

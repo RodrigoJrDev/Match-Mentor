@@ -2,7 +2,6 @@ package com.example.matchmentor.repository
 
 import retrofit2.Call
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -29,5 +28,5 @@ interface UserProfileService {
 
     @Multipart
     @POST("upload_image.php")
-    fun uploadImage(@Part image: MultipartBody.Part, @Part("email") email: RequestBody): Call<Void>
+    fun uploadImage(@Part file: MultipartBody.Part): Call<ResponseBody>
 }
