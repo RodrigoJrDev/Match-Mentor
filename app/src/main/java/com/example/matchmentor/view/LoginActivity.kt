@@ -2,11 +2,12 @@ package com.example.matchmentor.view
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import com.example.matchmentor.R
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import com.example.matchmentor.R
 import com.example.matchmentor.model.UserLogin
 import com.example.matchmentor.model.LoginResponse
 import com.example.matchmentor.repository.AuthService
@@ -36,16 +37,18 @@ class LoginActivity : AppCompatActivity() {
         loginButton.setOnClickListener {
             val email = emailEditText.text.toString().trim()
             val password = passwordEditText.text.toString().trim()
+
+            loginButton.isEnabled = false
+            loginButton.text = "Logando..."
+
             loginUser(email, password)
         }
 
         btnCadastar.setOnClickListener {
             val intent = Intent(this@LoginActivity, ChooseProfileTypeActivity::class.java)
             startActivity(intent)
-
             finish()
         }
-
     }
 
     private fun loginUser(email: String, password: String) {
@@ -53,23 +56,34 @@ class LoginActivity : AppCompatActivity() {
         service.loginUser(UserLogin(email, password)).enqueue(object : Callback<LoginResponse> {
             override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                 if (response.isSuccessful && response.body()?.message == "Login bem-sucedido") {
-                    Toast.makeText(this@LoginActivity, "Login bem-sucedido. ID: ${response.body()?.user_id}", Toast.LENGTH_LONG).show()
+                    val userId = response.body()?.user_id
+                    val userEmail = response.body()?.email_user
+                    val userType = response.body()?.type_user
 
+                    val sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE)
+                    val editor = sharedPreferences.edit()
+                    if (userId != null) {
+                        editor.putInt("USER_ID", userId)
+                    }
+                    editor.putString("USER_EMAIL", userEmail)
+                    editor.putString("USER_TYPE", userType)
+                    editor.apply()
 
-                    val intent = Intent(this@LoginActivity, CreateUserActivity::class.java)
-                    intent.putExtra("USER_ID", response.body()?.user_id)
+                    val intent = Intent(this@LoginActivity, HomePageActivity::class.java)
                     startActivity(intent)
-
-                    // Finaliza a LoginActivity se não precisar mais dela
                     finish()
-
                 } else {
                     Toast.makeText(this@LoginActivity, "Erro no login: ${response.body()?.message}", Toast.LENGTH_LONG).show()
                 }
+
+                loginButton.isEnabled = true
+                loginButton.text = "Login"
             }
 
             override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
                 Toast.makeText(this@LoginActivity, "Erro de rede: ${t.message}", Toast.LENGTH_LONG).show()
+                loginButton.isEnabled = true
+                loginButton.text = "Login"
             }
         })
     }

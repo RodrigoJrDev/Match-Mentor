@@ -19,18 +19,21 @@
         android:theme="@style/Theme.MatchMentor"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+
+
+        <activity android:name=".view.HomePageActivity"
+            android:exported="true">
+        </activity>
         <activity
             android:name=".view.ChooseProfileTypeActivity"
             android:exported="true"
             android:theme="@style/AppTheme" />
-
         <activity
             android:name=".view.SplashActivity"
             android:exported="true"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -38,17 +41,14 @@
             android:name=".view.LoginActivity"
             android:exported="true"
             android:theme="@style/AppTheme" />
-
         <activity
             android:name=".view.CreateUserActivity"
             android:exported="true"
             android:theme="@style/AppTheme" />
-
         <activity
             android:name=".view.CreateMentorActivity"
             android:exported="true"
             android:theme="@style/AppTheme" />
-
 
         <meta-data
             android:name="preloaded_fonts"

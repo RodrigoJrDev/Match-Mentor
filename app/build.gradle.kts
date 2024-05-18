@@ -2,7 +2,6 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
-    //id("com.google.gms.google-services")
 }
 
 android {
@@ -12,11 +11,9 @@ android {
     defaultConfig {
         applicationId = "com.example.matchmentor"
         minSdk = 21
-        //noinspection ExpiredTargetSdkVersion
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
@@ -54,7 +51,6 @@ android {
 }
 
 dependencies {
-    // Suas dependências existentes
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -75,7 +71,6 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    // Dependências adicionais
     // Room
     implementation("androidx.room:room-runtime:2.5.2")
     kapt("androidx.room:room-compiler:2.5.2")
@@ -94,11 +89,8 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.2")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.2")
 
-    // Firebase Cloud Messaging
-    //implementation("com.google.firebase:firebase-messaging:23.2.1")
-
-
     // OkHttp Logging Interceptor
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
 
+    implementation("com.yuyakaido.android:card-stack-view:2.3.4")
 }
