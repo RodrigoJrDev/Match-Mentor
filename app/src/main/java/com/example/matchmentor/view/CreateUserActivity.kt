@@ -4,8 +4,10 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.view.inputmethod.InputMethodManager
@@ -31,6 +33,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
+import java.io.FileOutputStream
 import kotlin.random.Random
 
 class CreateUserActivity : AppCompatActivity() {
@@ -48,7 +51,8 @@ class CreateUserActivity : AppCompatActivity() {
     private lateinit var btnCadastrarAluno: Button
 
     private val IMAGE_PICK_CODE = 1000
-    private val PERMISSION_CODE = 1001
+    private val CAMERA_PICK_CODE = 1001
+    private val PERMISSION_CODE = 1002
 
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://focus-clientes.com.br/MatchMentorBackEnd/")
@@ -76,24 +80,16 @@ class CreateUserActivity : AppCompatActivity() {
         btnCadastrarAluno = findViewById(R.id.btnCadastrarAluno)
 
         btnChoosePhoto.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                openGallery()
-            } else {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                    PERMISSION_CODE
-                )
-            }
+            showImageSourceDialog()
         }
 
         btnCadastrarAluno.setOnClickListener {
             val missingField = validateFields()
-            if (missingField.isEmpty()) {
+            if (uploadedImageName == null) {
+                Toast.makeText(this, "Por favor, suba uma imagem.", Toast.LENGTH_LONG).show()
+            } else if (missingField.isEmpty()) {
+                btnCadastrarAluno.isEnabled = false
+                btnCadastrarAluno.text = "Criando conta..."
                 createUser()
                 hideKeyboard()
             } else {
@@ -102,20 +98,39 @@ class CreateUserActivity : AppCompatActivity() {
         }
     }
 
+    private fun showImageSourceDialog() {
+        val options = arrayOf("Galeria", "Câmera")
+        val builder = android.app.AlertDialog.Builder(this)
+        builder.setTitle("Escolha a fonte da imagem")
+        builder.setItems(options) { dialog, which ->
+            when (which) {
+                0 -> openGallery()
+                1 -> openCamera()
+            }
+        }
+        builder.show()
+    }
+
     private fun openGallery() {
         val intent = Intent(Intent.ACTION_PICK)
         intent.type = "image/*"
         startActivityForResult(intent, IMAGE_PICK_CODE)
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    private fun openCamera() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSION_CODE)
+        } else {
+            val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            startActivityForResult(cameraIntent, CAMERA_PICK_CODE)
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_CODE && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            openGallery()
+            showImageSourceDialog()
         } else {
             Toast.makeText(this, "Permissão negada", Toast.LENGTH_SHORT).show()
         }
@@ -123,14 +138,33 @@ class CreateUserActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK && requestCode == IMAGE_PICK_CODE) {
-            val imageUri = data?.data
-            imageViewUserPhoto.setImageURI(imageUri)
-
-            val fileName = generateRandomFileName() + ".jpg"
-            val filePath = getRealPathFromURI(imageUri!!)
-            uploadImage(filePath, fileName)
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                IMAGE_PICK_CODE -> {
+                    val imageUri = data?.data
+                    imageViewUserPhoto.setImageURI(imageUri)
+                    val fileName = generateRandomFileName() + ".jpg"
+                    val filePath = getRealPathFromURI(imageUri!!)
+                    uploadImage(filePath, fileName)
+                }
+                CAMERA_PICK_CODE -> {
+                    val imageBitmap = data?.extras?.get("data") as Bitmap
+                    imageViewUserPhoto.setImageBitmap(imageBitmap)
+                    val fileName = generateRandomFileName() + ".jpg"
+                    val file = createImageFile()
+                    val outStream = FileOutputStream(file)
+                    imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream)
+                    outStream.flush()
+                    outStream.close()
+                    uploadImage(file.absolutePath, fileName)
+                }
+            }
         }
+    }
+
+    private fun createImageFile(): File {
+        val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile(generateRandomFileName(), ".jpg", storageDir)
     }
 
     private fun generateRandomFileName(): String {
@@ -151,6 +185,7 @@ class CreateUserActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     uploadedImageName = fileName
                     Toast.makeText(this@CreateUserActivity, "Imagem enviada com sucesso", Toast.LENGTH_SHORT).show()
+                    btnCadastrarAluno.isEnabled = true
                 } else {
                     Toast.makeText(this@CreateUserActivity, "Erro ao enviar imagem", Toast.LENGTH_SHORT).show()
                 }
@@ -215,6 +250,8 @@ class CreateUserActivity : AppCompatActivity() {
                     startActivity(intent)
                     finish()
                 } else {
+                    btnCadastrarAluno.isEnabled = true
+                    btnCadastrarAluno.text = "Cadastrar conta"
                     val errorMessage = response.errorBody()?.string()?.let {
                         // Tente extrair a mensagem de erro do JSON
                         try {
