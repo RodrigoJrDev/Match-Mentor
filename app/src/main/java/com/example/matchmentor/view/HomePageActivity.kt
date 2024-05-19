@@ -1,9 +1,11 @@
 package com.example.matchmentor.view
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.animation.LinearInterpolator
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DefaultItemAnimator
@@ -17,6 +19,7 @@ import com.example.matchmentor.repository.AuthService
 import com.example.matchmentor.repository.MatchmakingService
 import com.example.matchmentor.repository.ProfileService
 import com.example.matchmentor.repository.RetrofitClient
+import com.example.matchmentor.viewmodel.NotificationHandler
 import com.yuyakaido.android.cardstackview.CardStackLayoutManager
 import com.yuyakaido.android.cardstackview.CardStackListener
 import com.yuyakaido.android.cardstackview.CardStackView
@@ -32,6 +35,8 @@ class HomePageActivity : AppCompatActivity(), CardStackListener {
     private lateinit var cardStackView: CardStackView
     private lateinit var manager: CardStackLayoutManager
     private lateinit var adapter: CardStackAdapter
+    private lateinit var notificationHandler: NotificationHandler
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,10 +45,22 @@ class HomePageActivity : AppCompatActivity(), CardStackListener {
         cardStackView = findViewById(R.id.card_stack_view)
         manager = CardStackLayoutManager(this, this)
         adapter = CardStackAdapter(emptyList())
+        notificationHandler = NotificationHandler(this)
 
         setupCardStackView()
         checkSession()
         loadProfiles()
+
+        // Footer Bar
+        footerBarClickListeners()
+    }
+
+    private fun footerBarClickListeners() {
+        val searchIcon = findViewById<ImageView>(R.id.icon_search)
+        searchIcon.setOnClickListener {
+            val intent = Intent(this, SearchProfileActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun checkSession() {
@@ -155,6 +172,7 @@ class HomePageActivity : AppCompatActivity(), CardStackListener {
                 Log.d("Resposta de Match", response.body().toString())
                 if (response.isSuccessful) {
                     if (response.body()?.isMatch == true) {
+                        notificationHandler.showSimpleNotification()
                         Toast.makeText(this@HomePageActivity, "Match encontrado!", Toast.LENGTH_LONG).show()
                     }
                 } else {

@@ -1,11 +1,13 @@
 package com.example.matchmentor.view
 
+import android.Manifest
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.matchmentor.R
 import com.example.matchmentor.model.UserLogin
@@ -23,6 +25,16 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var loginButton: Button
     private lateinit var btnCadastar: Button
 
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            Log.d("Permissão concedida", "Permissão concedida")
+        } else {
+            Log.d("Permissão negada", "Permissão concedida")
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -33,6 +45,8 @@ class LoginActivity : AppCompatActivity() {
         passwordEditText = findViewById(R.id.passwordEditText)
         loginButton = findViewById(R.id.loginButton)
         btnCadastar = findViewById(R.id.btnCadastar)
+
+        requestNotificationPermission()
 
         loginButton.setOnClickListener {
             val email = emailEditText.text.toString().trim()
@@ -49,6 +63,10 @@ class LoginActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
+    }
+
+    private fun requestNotificationPermission() {
+        requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
 
     private fun loginUser(email: String, password: String) {
