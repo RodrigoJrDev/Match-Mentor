@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.matchmentor.R
 import com.example.matchmentor.model.Item
 
@@ -26,15 +27,22 @@ class CardStackAdapter(
         return items.size
     }
 
+    fun getItem(position: Int): Item {
+        return items[position]
+    }
+
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val imageView: ImageView = view.findViewById(R.id.item_image)
         private val titleTextView: TextView = view.findViewById(R.id.item_title)
         private val subtitleTextView: TextView = view.findViewById(R.id.item_subtitle)
 
         fun bind(item: Item) {
-            imageView.setImageResource(item.imageResId)
-            titleTextView.text = item.title
-            subtitleTextView.text = item.subtitle
+            val imageUrl = "https://focus-clientes.com.br/MatchMentorBackEnd/icons-users/${item.foto}"
+            Glide.with(imageView.context)
+                .load(imageUrl)
+                .into(imageView)
+            titleTextView.text = item.nome
+            subtitleTextView.text = item.descricao
         }
     }
 

@@ -97,4 +97,7 @@ dependencies {
 
     // CardStackView library
     implementation("com.yuyakaido.android:card-stack-view:2.3.4")
+
+    implementation("com.github.bumptech.glide:glide:4.12.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
 }

@@ -11,7 +11,11 @@ import com.example.matchmentor.R
 import com.example.matchmentor.model.CheckSessionRequest
 import com.example.matchmentor.model.Item
 import com.example.matchmentor.model.SessionResponse
+import com.example.matchmentor.model.MatchRequest
+import com.example.matchmentor.model.MatchResponse
 import com.example.matchmentor.repository.AuthService
+import com.example.matchmentor.repository.MatchmakingService
+import com.example.matchmentor.repository.ProfileService
 import com.example.matchmentor.repository.RetrofitClient
 import com.yuyakaido.android.cardstackview.CardStackLayoutManager
 import com.yuyakaido.android.cardstackview.CardStackListener
@@ -20,26 +24,26 @@ import com.yuyakaido.android.cardstackview.Direction
 import com.yuyakaido.android.cardstackview.StackFrom
 import com.yuyakaido.android.cardstackview.SwipeableMethod
 import retrofit2.Call
-import retrofit2.Response
 import retrofit2.Callback
+import retrofit2.Response
 
-class HomePageActivity: AppCompatActivity(), CardStackListener {
+class HomePageActivity : AppCompatActivity(), CardStackListener {
 
     private lateinit var cardStackView: CardStackView
     private lateinit var manager: CardStackLayoutManager
     private lateinit var adapter: CardStackAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        checkSession()
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         cardStackView = findViewById(R.id.card_stack_view)
         manager = CardStackLayoutManager(this, this)
-        adapter = CardStackAdapter(createItems())
+        adapter = CardStackAdapter(emptyList())
 
         setupCardStackView()
+        checkSession()
+        loadProfiles()
     }
 
     private fun checkSession() {
@@ -73,7 +77,6 @@ class HomePageActivity: AppCompatActivity(), CardStackListener {
         })
     }
 
-
     private fun setupCardStackView() {
         manager.setStackFrom(StackFrom.None)
         manager.setVisibleCount(3)
@@ -92,35 +95,92 @@ class HomePageActivity: AppCompatActivity(), CardStackListener {
         cardStackView.itemAnimator = DefaultItemAnimator()
     }
 
-    private fun createItems(): List<Item> {
-        return listOf(
-            Item(R.drawable.image1, "Fushimi Inari Shrine", "Kyoto"),
-            Item(R.drawable.image2, "Kiyomizu-dera", "Kyoto"),
-            Item(R.drawable.image3, "Kinkaku-ji", "Kyoto"),
-        )
+    private fun loadProfiles() {
+        val sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE)
+        val userId = sharedPreferences.getInt("USER_ID", -1)
+        val userType = sharedPreferences.getString("USER_TYPE", null)
+
+        if (userId == -1 || userType == null) {
+            Toast.makeText(this, "Sessão inválida", Toast.LENGTH_LONG).show()
+            finish()
+            return
+        }
+
+
+        val service = RetrofitClient.instance.create(ProfileService::class.java)
+        val call = if (userType == "mentor") {
+            service.getProfilesForMentor(userId, "mentor")
+        } else {
+            service.getProfilesForUser(userId, "usuario")
+        }
+        call.enqueue(object : Callback<List<Item>> {
+            override fun onResponse(call: Call<List<Item>>, response: Response<List<Item>>) {
+                if (response.isSuccessful) {
+                    adapter.setItems(response.body() ?: emptyList())
+                } else {
+                    Toast.makeText(this@HomePageActivity, "Erro ao carregar perfis", Toast.LENGTH_LONG).show()
+                }
+            }
+
+            override fun onFailure(call: Call<List<Item>>, t: Throwable) {
+                Toast.makeText(this@HomePageActivity, "Erro de rede: ${t.message}", Toast.LENGTH_LONG).show()
+            }
+        })
     }
 
+
     override fun onCardDragging(direction: Direction?, ratio: Float) {
-        // Do something
+        // Implement as needed
     }
 
     override fun onCardSwiped(direction: Direction?) {
-        // Do something
+        val position = manager.topPosition - 1
+        val item = adapter.getItem(position)
+        if (direction == Direction.Right) {
+            updateMatchmaking(item.id, true)
+        } else if (direction == Direction.Left) {
+            updateMatchmaking(item.id, false)
+        }
+    }
+
+    private fun updateMatchmaking(profileId: Int, match: Boolean) {
+        val sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE)
+        val userId = sharedPreferences.getInt("USER_ID", -1)
+        val userType = sharedPreferences.getString("USER_TYPE", "usuario") ?: "usuario"
+
+        val service = RetrofitClient.instance.create(MatchmakingService::class.java)
+        val request = MatchRequest(userId, profileId, userType, match)
+        service.updateMatch(request).enqueue(object : Callback<MatchResponse> {
+            override fun onResponse(call: Call<MatchResponse>, response: Response<MatchResponse>) {
+                Log.d("Resposta de Match", response.body().toString())
+                if (response.isSuccessful) {
+                    if (response.body()?.isMatch == true) {
+                        Toast.makeText(this@HomePageActivity, "Match encontrado!", Toast.LENGTH_LONG).show()
+                    }
+                } else {
+                    Toast.makeText(this@HomePageActivity, "Erro ao atualizar match", Toast.LENGTH_LONG).show()
+                }
+            }
+
+            override fun onFailure(call: Call<MatchResponse>, t: Throwable) {
+                Toast.makeText(this@HomePageActivity, "Erro de rede: ${t.message}", Toast.LENGTH_LONG).show()
+            }
+        })
     }
 
     override fun onCardRewound() {
-        // Do something
+        // Implement as needed
     }
 
     override fun onCardCanceled() {
-        // Do something
+        // Implement as needed
     }
 
     override fun onCardAppeared(view: View?, position: Int) {
-        // Do something
+        // Implement as needed
     }
 
     override fun onCardDisappeared(view: View?, position: Int) {
-        // Do something
+        // Implement as needed
     }
 }
