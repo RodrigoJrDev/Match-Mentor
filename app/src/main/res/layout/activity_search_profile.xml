@@ -1,10 +1,121 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".view.SearchProfileActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- Barra Superior -->
+    <RelativeLayout
+        android:id="@+id/relativeLayout"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="-1dp"
+        android:background="@drawable/top_bar_background">
+
+        <TextView
+            android:id="@+id/title_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Pesquisar"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+    <EditText
+        android:id="@+id/search_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/relativeLayout"
+        android:layout_margin="16dp"
+        android:hint="Pesquise sua área de interesse"
+        android:background="@drawable/edit_text_background"
+        android:padding="12dp" />
+
+    <Button
+        android:id="@+id/search_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/search_input"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:text="Pesquisar" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/search_button"
+        android:layout_above="@id/bottom_navigation"
+        android:layout_margin="16dp"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp" />
+
+    <TextView
+        android:id="@+id/no_results_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/search_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:text="Nenhum perfil encontrado"
+        android:visibility="gone"
+        android:textSize="18sp"
+        android:textColor="@android:color/black" />
+
+    <RelativeLayout
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="-4dp"
+        android:background="@drawable/bottom_navigation_background">
+
+        <ImageView
+            android:id="@+id/icon_academic"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="43dp"
+            android:layout_marginBottom="32dp"
+            android:src="@drawable/home" />
+
+        <ImageView
+            android:id="@+id/icon_star"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="45dp"
+            android:layout_marginBottom="32dp"
+            android:layout_toEndOf="@id/icon_academic"
+            android:src="@drawable/star" />
+
+        <ImageView
+            android:id="@+id/icon_search"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="52dp"
+            android:layout_marginBottom="32dp"
+            android:layout_toEndOf="@id/icon_star"
+            android:src="@drawable/pesquisar" />
+
+        <ImageView
+            android:id="@+id/icon_profile"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="63dp"
+            android:layout_marginEnd="48dp"
+            android:layout_marginBottom="32dp"
+            android:layout_toEndOf="@id/icon_search"
+            android:src="@drawable/perfil" />
+    </RelativeLayout>
+
+</RelativeLayout>
