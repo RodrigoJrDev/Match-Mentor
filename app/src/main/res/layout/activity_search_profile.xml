@@ -24,16 +24,19 @@
             android:textStyle="bold" />
     </RelativeLayout>
 
-    <EditText
+    <!-- Campo de Entrada de Texto com Sugestões -->
+    <AutoCompleteTextView
         android:id="@+id/search_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/relativeLayout"
         android:layout_margin="16dp"
-        android:hint="Pesquise sua área de interesse"
+        android:hint="Digite uma área de interesse para pesquisar"
         android:background="@drawable/edit_text_background"
-        android:padding="12dp" />
+        android:padding="12dp"
+        android:completionThreshold="1" />
 
+    <!-- Botão de Pesquisa -->
     <Button
         android:id="@+id/search_button"
         android:layout_width="wrap_content"
@@ -45,28 +48,43 @@
         android:layout_marginEnd="16dp"
         android:text="Pesquisar" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view"
+    <!-- NestedScrollView para permitir rolagem -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nested_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_below="@id/search_button"
         android:layout_above="@id/bottom_navigation"
-        android:layout_margin="16dp"
-        android:clipToPadding="false"
-        android:paddingBottom="16dp" />
+        android:layout_margin="16dp">
 
-    <TextView
-        android:id="@+id/no_results_text_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/search_button"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
-        android:text="Nenhum perfil encontrado"
-        android:visibility="gone"
-        android:textSize="18sp"
-        android:textColor="@android:color/black" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
+            <!-- RecyclerView para Exibir os Resultados da Pesquisa -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:paddingBottom="16dp" />
+
+            <!-- Mensagem de Nenhum Resultado Encontrado -->
+            <TextView
+                android:id="@+id/no_results_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:text="Nenhum perfil encontrado"
+                android:visibility="gone"
+                android:textSize="18sp"
+                android:textColor="@android:color/black" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Barra Inferior -->
     <RelativeLayout
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"

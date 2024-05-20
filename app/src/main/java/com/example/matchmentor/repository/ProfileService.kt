@@ -19,4 +19,10 @@ interface ProfileService {
         @Query("userType") userType: String,
         @Query("query") query: String
     ): Call<List<Profile>>
+
+    @GET("get_suggestions.php")
+    fun getSuggestions(
+        @Query("userType") userType: String
+    ): Call<List<String>>
+
 }

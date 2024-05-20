@@ -1,9 +1,12 @@
 package com.example.matchmentor.view
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Button
-import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -19,7 +22,7 @@ import retrofit2.Response
 
 class SearchProfileActivity : AppCompatActivity() {
 
-    private lateinit var searchInput: EditText
+    private lateinit var searchInput: AutoCompleteTextView
     private lateinit var searchButton: Button
     private lateinit var recyclerView: RecyclerView
     private lateinit var profileAdapter: ProfileAdapter
@@ -46,6 +49,49 @@ class SearchProfileActivity : AppCompatActivity() {
                 Toast.makeText(this, "Por favor, digite uma área de interesse", Toast.LENGTH_SHORT).show()
             }
         }
+
+        searchInput.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus && searchInput.text.isEmpty()) {
+                loadSuggestions()
+            }
+        }
+
+        searchInput.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                if (s.isNullOrEmpty()) {
+                    loadSuggestions()
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
+        loadSuggestions()
+    }
+
+    private fun loadSuggestions() {
+        val sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE)
+        val userType = sharedPreferences.getString("USER_TYPE", "usuario") ?: "usuario"
+
+        val service = RetrofitClient.instance.create(ProfileService::class.java)
+        service.getSuggestions(userType).enqueue(object : Callback<List<String>> {
+            override fun onResponse(call: Call<List<String>>, response: Response<List<String>>) {
+                if (response.isSuccessful) {
+                    val suggestions = response.body() ?: emptyList()
+                    val adapter = ArrayAdapter(this@SearchProfileActivity, android.R.layout.simple_dropdown_item_1line, suggestions)
+                    searchInput.setAdapter(adapter)
+                    searchInput.showDropDown()
+                } else {
+                    Toast.makeText(this@SearchProfileActivity, "Erro ao carregar sugestões", Toast.LENGTH_LONG).show()
+                }
+            }
+
+            override fun onFailure(call: Call<List<String>>, t: Throwable) {
+                Toast.makeText(this@SearchProfileActivity, "Erro de rede: ${t.message}", Toast.LENGTH_LONG).show()
+            }
+        })
     }
 
     private fun performSearch(query: String) {
