@@ -15,15 +15,16 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.matchmentor.R
 import com.example.matchmentor.model.UserProfile
 import com.example.matchmentor.repository.UserProfileService
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.ResponseBody
 import org.json.JSONException
 import org.json.JSONObject
@@ -50,10 +51,6 @@ class CreateUserActivity : AppCompatActivity() {
     private lateinit var btnChoosePhoto: Button
     private lateinit var btnCadastrarAluno: Button
 
-    private val IMAGE_PICK_CODE = 1000
-    private val CAMERA_PICK_CODE = 1001
-    private val PERMISSION_CODE = 1002
-
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://focus-clientes.com.br/MatchMentorBackEnd/")
         .addConverterFactory(GsonConverterFactory.create())
@@ -61,6 +58,10 @@ class CreateUserActivity : AppCompatActivity() {
 
     private val userProfileService = retrofit.create(UserProfileService::class.java)
     private var uploadedImageName: String? = null
+
+    private lateinit var requestPermissionLauncher: ActivityResultLauncher<Array<String>>
+    private lateinit var pickImageLauncher: ActivityResultLauncher<Intent>
+    private lateinit var takePhotoLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,8 +80,42 @@ class CreateUserActivity : AppCompatActivity() {
         btnChoosePhoto = findViewById(R.id.buttonChoosePhoto)
         btnCadastrarAluno = findViewById(R.id.btnCadastrarAluno)
 
-        btnChoosePhoto.setOnClickListener {
+        requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
             showImageSourceDialog()
+        }
+
+        pickImageLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val imageUri = result.data?.data
+                imageViewUserPhoto.setImageURI(imageUri)
+                val fileName = generateRandomFileName() + ".jpg"
+                val filePath = getRealPathFromURI(imageUri!!)
+                uploadImage(filePath, fileName)
+            }
+        }
+
+        takePhotoLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val imageBitmap = result.data?.extras?.get("data") as Bitmap
+                imageViewUserPhoto.setImageBitmap(imageBitmap)
+                val fileName = generateRandomFileName() + ".jpg"
+                val file = createImageFile()
+                val outStream = FileOutputStream(file)
+                imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream)
+                outStream.flush()
+                outStream.close()
+                uploadImage(file.absolutePath, fileName)
+            }
+        }
+
+        btnChoosePhoto.setOnClickListener {
+            checkAndRequestPermissions()
         }
 
         btnCadastrarAluno.setOnClickListener {
@@ -98,11 +133,43 @@ class CreateUserActivity : AppCompatActivity() {
         }
     }
 
+    private fun checkAndRequestPermissions() {
+        val cameraPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+        val readImagesPermission = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES)
+        } else {
+            ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
+        val writeExternalStoragePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+
+        val listPermissionsNeeded = mutableListOf<String>()
+
+        if (cameraPermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.CAMERA)
+        }
+        if (readImagesPermission != PackageManager.PERMISSION_GRANTED) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                listPermissionsNeeded.add(Manifest.permission.READ_MEDIA_IMAGES)
+            } else {
+                listPermissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+        }
+        if (writeExternalStoragePermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
+
+        if (listPermissionsNeeded.isNotEmpty()) {
+            requestPermissionLauncher.launch(listPermissionsNeeded.toTypedArray())
+        } else {
+            showImageSourceDialog()
+        }
+    }
+
     private fun showImageSourceDialog() {
         val options = arrayOf("Galeria", "Câmera")
         val builder = android.app.AlertDialog.Builder(this)
         builder.setTitle("Escolha a fonte da imagem")
-        builder.setItems(options) { dialog, which ->
+        builder.setItems(options) { _, which ->
             when (which) {
                 0 -> openGallery()
                 1 -> openCamera()
@@ -114,52 +181,12 @@ class CreateUserActivity : AppCompatActivity() {
     private fun openGallery() {
         val intent = Intent(Intent.ACTION_PICK)
         intent.type = "image/*"
-        startActivityForResult(intent, IMAGE_PICK_CODE)
+        pickImageLauncher.launch(intent)
     }
 
     private fun openCamera() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSION_CODE)
-        } else {
-            val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            startActivityForResult(cameraIntent, CAMERA_PICK_CODE)
-        }
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PERMISSION_CODE && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            showImageSourceDialog()
-        } else {
-            Toast.makeText(this, "Permissão negada", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK) {
-            when (requestCode) {
-                IMAGE_PICK_CODE -> {
-                    val imageUri = data?.data
-                    imageViewUserPhoto.setImageURI(imageUri)
-                    val fileName = generateRandomFileName() + ".jpg"
-                    val filePath = getRealPathFromURI(imageUri!!)
-                    uploadImage(filePath, fileName)
-                }
-                CAMERA_PICK_CODE -> {
-                    val imageBitmap = data?.extras?.get("data") as Bitmap
-                    imageViewUserPhoto.setImageBitmap(imageBitmap)
-                    val fileName = generateRandomFileName() + ".jpg"
-                    val file = createImageFile()
-                    val outStream = FileOutputStream(file)
-                    imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream)
-                    outStream.flush()
-                    outStream.close()
-                    uploadImage(file.absolutePath, fileName)
-                }
-            }
-        }
+        val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        takePhotoLauncher.launch(cameraIntent)
     }
 
     private fun createImageFile(): File {
@@ -176,7 +203,7 @@ class CreateUserActivity : AppCompatActivity() {
 
     private fun uploadImage(filePath: String, fileName: String) {
         val file = File(filePath)
-        val requestFile = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
+        val requestFile = file.asRequestBody("multipart/form-data".toMediaTypeOrNull())
         val body = MultipartBody.Part.createFormData("file", fileName, requestFile)
 
         val call = userProfileService.uploadImage(body)
@@ -253,7 +280,6 @@ class CreateUserActivity : AppCompatActivity() {
                     btnCadastrarAluno.isEnabled = true
                     btnCadastrarAluno.text = "Cadastrar conta"
                     val errorMessage = response.errorBody()?.string()?.let {
-                        // Tente extrair a mensagem de erro do JSON
                         try {
                             val jsonObj = JSONObject(it)
                             jsonObj.getString("message")
@@ -272,3 +298,4 @@ class CreateUserActivity : AppCompatActivity() {
         })
     }
 }
+

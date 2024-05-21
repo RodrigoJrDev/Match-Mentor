@@ -10,10 +10,22 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DefaultItemAnimator
 import com.example.matchmentor.R
-import com.example.matchmentor.model.*
-import com.example.matchmentor.repository.*
+import com.example.matchmentor.model.CheckSessionRequest
+import com.example.matchmentor.model.Item
+import com.example.matchmentor.model.SessionResponse
+import com.example.matchmentor.model.MatchRequest
+import com.example.matchmentor.model.MatchResponse
+import com.example.matchmentor.repository.AuthService
+import com.example.matchmentor.repository.MatchmakingService
+import com.example.matchmentor.repository.ProfileService
+import com.example.matchmentor.repository.RetrofitClient
 import com.example.matchmentor.viewmodel.NotificationHandler
-import com.yuyakaido.android.cardstackview.*
+import com.yuyakaido.android.cardstackview.CardStackLayoutManager
+import com.yuyakaido.android.cardstackview.CardStackListener
+import com.yuyakaido.android.cardstackview.CardStackView
+import com.yuyakaido.android.cardstackview.Direction
+import com.yuyakaido.android.cardstackview.StackFrom
+import com.yuyakaido.android.cardstackview.SwipeableMethod
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -24,6 +36,7 @@ class HomePageActivity : AppCompatActivity(), CardStackListener {
     private lateinit var manager: CardStackLayoutManager
     private lateinit var adapter: CardStackAdapter
     private lateinit var notificationHandler: NotificationHandler
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -110,6 +123,7 @@ class HomePageActivity : AppCompatActivity(), CardStackListener {
             return
         }
 
+
         val service = RetrofitClient.instance.create(ProfileService::class.java)
         val call = if (userType == "mentor") {
             service.getProfilesForMentor(userId, "mentor")
@@ -119,6 +133,7 @@ class HomePageActivity : AppCompatActivity(), CardStackListener {
         call.enqueue(object : Callback<List<Item>> {
             override fun onResponse(call: Call<List<Item>>, response: Response<List<Item>>) {
                 if (response.isSuccessful) {
+                    Log.d("Itens Card", response.body().toString())
                     adapter.setItems(response.body() ?: emptyList())
                 } else {
                     Toast.makeText(this@HomePageActivity, "Erro ao carregar perfis", Toast.LENGTH_LONG).show()
@@ -130,6 +145,7 @@ class HomePageActivity : AppCompatActivity(), CardStackListener {
             }
         })
     }
+
 
     override fun onCardDragging(direction: Direction?, ratio: Float) {
         // Implement as needed
@@ -156,16 +172,9 @@ class HomePageActivity : AppCompatActivity(), CardStackListener {
             override fun onResponse(call: Call<MatchResponse>, response: Response<MatchResponse>) {
                 Log.d("Resposta de Match", response.body().toString())
                 if (response.isSuccessful) {
-                    val matchResponse = response.body()
-                    if (matchResponse?.isMatch == true) {
+                    if (response.body()?.isMatch == true) {
                         notificationHandler.showSimpleNotification()
                         Toast.makeText(this@HomePageActivity, "Match encontrado!", Toast.LENGTH_LONG).show()
-
-                        // Enviar notificação local para o outro usuário
-                        val otherUserId = if (userType == "mentor") matchResponse.usuarioId else matchResponse.mentorId
-                        if (otherUserId != null) {
-                            sendNotificationToOtherUser(otherUserId)
-                        }
                     }
                 } else {
                     Toast.makeText(this@HomePageActivity, "Erro ao atualizar match", Toast.LENGTH_LONG).show()
@@ -178,10 +187,7 @@ class HomePageActivity : AppCompatActivity(), CardStackListener {
         })
     }
 
-    private fun sendNotificationToOtherUser(otherUserId: Int) {
-        val otherUserNotificationHandler = NotificationHandler(this)
-        otherUserNotificationHandler.showSimpleNotification()
-    }
+
 
     override fun onCardRewound() {
         // Implement as needed
