@@ -43,6 +43,8 @@
         <activity android:requestLegacyExternalStorage="true" android:name=".view.CreateUserActivity" android:exported="true" android:theme="@style/AppTheme" />
         <activity android:requestLegacyExternalStorage="true" android:name=".view.CreateMentorActivity" android:exported="true" android:theme="@style/AppTheme" />
 
-        <meta-data android:name="preloaded_fonts" android:resource="@array/preloaded_fonts" />
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
     </application>
 </manifest>
