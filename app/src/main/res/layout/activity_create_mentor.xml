@@ -94,6 +94,28 @@
                 android:layout_marginBottom="16dp" />
 
             <TextView
+                android:id="@+id/labelSobrenomeMentor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_medium"
+                android:text="Sobrenome do Mentor"
+                android:textSize="14sp"
+                android:textColor="#FFFFFF"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/textSobrenomeMentor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_rounded_background"
+                android:fontFamily="@font/poppins_medium"
+                android:hint="Sobrenome do Mentor"
+                android:inputType="text"
+                android:padding="12dp"
+                android:layout_marginBottom="16dp" />
+
+
+            <TextView
                 android:id="@+id/labelEmailMentor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -274,4 +296,3 @@
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
-

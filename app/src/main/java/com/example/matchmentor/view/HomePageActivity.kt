@@ -37,14 +37,13 @@ class HomePageActivity : AppCompatActivity(), CardStackListener {
     private lateinit var adapter: CardStackAdapter
     private lateinit var notificationHandler: NotificationHandler
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         cardStackView = findViewById(R.id.card_stack_view)
         manager = CardStackLayoutManager(this, this)
-        adapter = CardStackAdapter(emptyList())
+        adapter = CardStackAdapter(emptyList(), this::onLikeClick, this::onDislikeClick)
         notificationHandler = NotificationHandler(this)
 
         setupCardStackView()
@@ -53,6 +52,42 @@ class HomePageActivity : AppCompatActivity(), CardStackListener {
 
         // Footer Bar
         footerBarClickListeners()
+    }
+
+    private fun onLikeClick(item: Item) {
+        swipeCard(Direction.Right)
+    }
+
+    private fun onDislikeClick(item: Item) {
+        swipeCard(Direction.Left)
+    }
+
+    private fun swipeCard(direction: Direction) {
+        if (manager.topPosition < adapter.itemCount) {
+            when (direction) {
+                Direction.Right -> {
+                    manager.setSwipeAnimationSetting(
+                        com.yuyakaido.android.cardstackview.SwipeAnimationSetting.Builder()
+                            .setDirection(Direction.Right)
+                            .setDuration(200)
+                            .setInterpolator(LinearInterpolator())
+                            .build()
+                    )
+                    cardStackView.swipe()
+                }
+                Direction.Left -> {
+                    manager.setSwipeAnimationSetting(
+                        com.yuyakaido.android.cardstackview.SwipeAnimationSetting.Builder()
+                            .setDirection(Direction.Left)
+                            .setDuration(200)
+                            .setInterpolator(LinearInterpolator())
+                            .build()
+                    )
+                    cardStackView.swipe()
+                }
+                else -> { /* Do nothing */ }
+            }
+        }
     }
 
     private fun footerBarClickListeners() {
@@ -68,7 +103,6 @@ class HomePageActivity : AppCompatActivity(), CardStackListener {
         val userId = sharedPreferences.getInt("USER_ID", -1)
         val userEmail = sharedPreferences.getString("USER_EMAIL", null)
         val userType = sharedPreferences.getString("USER_TYPE", null)
-
         if (userId == -1 || userEmail == null || userType == null) {
             Toast.makeText(this, "Sessão inválida", Toast.LENGTH_LONG).show()
             finish()
@@ -123,7 +157,6 @@ class HomePageActivity : AppCompatActivity(), CardStackListener {
             return
         }
 
-
         val service = RetrofitClient.instance.create(ProfileService::class.java)
         val call = if (userType == "mentor") {
             service.getProfilesForMentor(userId, "mentor")
@@ -145,7 +178,6 @@ class HomePageActivity : AppCompatActivity(), CardStackListener {
             }
         })
     }
-
 
     override fun onCardDragging(direction: Direction?, ratio: Float) {
         // Implement as needed
@@ -187,8 +219,6 @@ class HomePageActivity : AppCompatActivity(), CardStackListener {
         })
     }
 
-
-
     override fun onCardRewound() {
         // Implement as needed
     }
@@ -205,3 +235,4 @@ class HomePageActivity : AppCompatActivity(), CardStackListener {
         // Implement as needed
     }
 }
+

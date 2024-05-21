@@ -41,6 +41,7 @@ class CreateMentorActivity : AppCompatActivity() {
 
     private lateinit var emailMentor: EditText
     private lateinit var nomeMentor: EditText
+    private lateinit var sobreNomeMentor: EditText
     private lateinit var senhaMentor: EditText
     private lateinit var idadeMentor: EditText
     private lateinit var cidadeMentor: EditText
@@ -71,6 +72,7 @@ class CreateMentorActivity : AppCompatActivity() {
 
         emailMentor = findViewById(R.id.textEmailMentor)
         nomeMentor = findViewById(R.id.textNomeMentor)
+        sobreNomeMentor = findViewById(R.id.textSobrenomeMentor)
         senhaMentor = findViewById(R.id.textSenhaMentor)
         idadeMentor = findViewById(R.id.textIdadeMentor)
         cidadeMentor = findViewById(R.id.textCidadeMentor)
@@ -238,6 +240,7 @@ class CreateMentorActivity : AppCompatActivity() {
 
     private fun validateFields(): String {
         if (nomeMentor.text.toString().trim().isEmpty()) return "nome"
+        if (sobreNomeMentor.text.toString().trim().isEmpty()) return "Sobrenome"
         if (emailMentor.text.toString().trim().isEmpty()) return "email"
         if (senhaMentor.text.toString().trim().isEmpty()) return "senha"
         if (idadeMentor.text.toString().trim().isEmpty()) return "idade"
@@ -256,7 +259,7 @@ class CreateMentorActivity : AppCompatActivity() {
 
     private fun createMentor() {
         val nome = nomeMentor.text.toString().trim()
-        val sobrenome = "Sobrenome" // Ajustar conforme necessário
+        val sobrenome = sobreNomeMentor.text.toString().trim()
         val email = emailMentor.text.toString().trim()
         val senha = senhaMentor.text.toString().trim()
         val idade = idadeMentor.text.toString().trim().toIntOrNull()

@@ -11,7 +11,9 @@ import com.example.matchmentor.R
 import com.example.matchmentor.model.Item
 
 class CardStackAdapter(
-    private var items: List<Item>
+    private var items: List<Item>,
+    private val onLikeClick: (Item) -> Unit,
+    private val onDislikeClick: (Item) -> Unit
 ) : RecyclerView.Adapter<CardStackAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -20,7 +22,7 @@ class CardStackAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(items[position])
+        holder.bind(items[position], onLikeClick, onDislikeClick)
     }
 
     override fun getItemCount(): Int {
@@ -35,14 +37,26 @@ class CardStackAdapter(
         private val imageView: ImageView = view.findViewById(R.id.item_image)
         private val titleTextView: TextView = view.findViewById(R.id.item_title)
         private val subtitleTextView: TextView = view.findViewById(R.id.item_subtitle)
+        private val descriptionTextView: TextView = view.findViewById(R.id.item_description)
+        private val likeButton: ImageView = view.findViewById(R.id.like_button)
+        private val dislikeButton: ImageView = view.findViewById(R.id.dislike_button)
 
-        fun bind(item: Item) {
+        fun bind(item: Item, onLikeClick: (Item) -> Unit, onDislikeClick: (Item) -> Unit) {
             val imageUrl = "https://focus-clientes.com.br/MatchMentorBackEnd/icons-users/${item.foto}"
             Glide.with(imageView.context)
                 .load(imageUrl)
                 .into(imageView)
             titleTextView.text = item.nome
-            subtitleTextView.text = item.descricao
+            subtitleTextView.text = item.profissao
+            descriptionTextView.text = item.descricao_pessoal
+
+            likeButton.setOnClickListener {
+                onLikeClick(item)
+            }
+
+            dislikeButton.setOnClickListener {
+                onDislikeClick(item)
+            }
         }
     }
 

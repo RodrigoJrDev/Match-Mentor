@@ -41,6 +41,7 @@ class CreateUserActivity : AppCompatActivity() {
 
     private lateinit var emailAluno: EditText
     private lateinit var nomeAluno: EditText
+    private lateinit var sobreNomeAluno: EditText
     private lateinit var senhaAluno: EditText
     private lateinit var idadeAluno: EditText
     private lateinit var cidadeAluno: EditText
@@ -70,6 +71,7 @@ class CreateUserActivity : AppCompatActivity() {
 
         emailAluno = findViewById(R.id.textEmailAluno)
         nomeAluno = findViewById(R.id.textNomeAluno)
+        sobreNomeAluno = findViewById(R.id.textSobrenomeAluno)
         senhaAluno = findViewById(R.id.textSenhaAluno)
         idadeAluno = findViewById(R.id.textIdadeAluno)
         cidadeAluno = findViewById(R.id.textCidadeAluno)
@@ -239,6 +241,7 @@ class CreateUserActivity : AppCompatActivity() {
 
     private fun validateFields(): String {
         if (nomeAluno.text.toString().trim().isEmpty()) return "nome"
+        if (sobreNomeAluno.text.toString().trim().isEmpty()) return "Sobrenome"
         if (emailAluno.text.toString().trim().isEmpty()) return "email"
         if (senhaAluno.text.toString().trim().isEmpty()) return "senha"
         if (idadeAluno.text.toString().trim().isEmpty()) return "idade"
@@ -256,7 +259,7 @@ class CreateUserActivity : AppCompatActivity() {
 
     private fun createUser() {
         val nome = nomeAluno.text.toString().trim()
-        val sobrenome = "Sobrenome" // Ajustar conforme necessário
+        val sobrenome = sobreNomeAluno.text.toString().trim()
         val email = emailAluno.text.toString().trim()
         val senha = senhaAluno.text.toString().trim()
         val idade = idadeAluno.text.toString().trim().toIntOrNull()
