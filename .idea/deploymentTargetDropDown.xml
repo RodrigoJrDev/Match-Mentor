@@ -2,6 +2,9 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
+      <entry key="MatchingsActivity">
+        <State />
+      </entry>
       <entry key="SplashActivity">
         <State />
       </entry>

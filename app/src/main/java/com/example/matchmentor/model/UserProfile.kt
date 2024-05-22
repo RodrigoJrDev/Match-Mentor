@@ -11,7 +11,7 @@ data class UserProfile(
     @SerializedName("cidade") val city: String,
     @SerializedName("area_de_interesse") val interestArea: String,
     @SerializedName("profissao") val profession: String,
-    @SerializedName("descricao") val description: String,
+    @SerializedName("descricao_pessoal") val description: String,
     @SerializedName("foto") val photo: String?,
     @SerializedName("email") val email: String,
     @SerializedName("senha") val password: String

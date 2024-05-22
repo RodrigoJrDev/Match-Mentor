@@ -91,9 +91,28 @@ class HomePageActivity : AppCompatActivity(), CardStackListener {
     }
 
     private fun footerBarClickListeners() {
-        val searchIcon = findViewById<ImageView>(R.id.icon_search)
+        val logoIcon    = findViewById<ImageView>(R.id.icon_academic)
+        val starIcon    = findViewById<ImageView>(R.id.icon_star)
+        val searchIcon  = findViewById<ImageView>(R.id.icon_search)
+        val profileIcon = findViewById<ImageView>(R.id.icon_profile)
+
+        logoIcon.setOnClickListener {
+            val intent = Intent(this, SearchProfileActivity::class.java)
+            startActivity(intent)
+        }
+
+        starIcon.setOnClickListener {
+            val intent = Intent(this, MatchingsActivity::class.java)
+            startActivity(intent)
+        }
+
         searchIcon.setOnClickListener {
             val intent = Intent(this, SearchProfileActivity::class.java)
+            startActivity(intent)
+        }
+
+        profileIcon.setOnClickListener {
+            val intent = Intent(this, ProfileActivity::class.java)
             startActivity(intent)
         }
     }

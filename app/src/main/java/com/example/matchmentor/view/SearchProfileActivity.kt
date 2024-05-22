@@ -1,5 +1,6 @@
 package com.example.matchmentor.view
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -7,6 +8,7 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -31,6 +33,8 @@ class SearchProfileActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search_profile)
+
+        supportActionBar?.hide()
 
         searchInput = findViewById(R.id.search_input)
         searchButton = findViewById(R.id.search_button)
@@ -69,6 +73,31 @@ class SearchProfileActivity : AppCompatActivity() {
         })
 
         loadSuggestions()
+
+        // Footer Bar
+        footerBarClickListeners()
+    }
+
+    private fun footerBarClickListeners() {
+        val logoIcon    = findViewById<ImageView>(R.id.icon_academic)
+        val starIcon    = findViewById<ImageView>(R.id.icon_star)
+        val profileIcon = findViewById<ImageView>(R.id.icon_profile)
+
+        logoIcon.setOnClickListener {
+            val intent = Intent(this, HomePageActivity::class.java)
+            startActivity(intent)
+        }
+
+        starIcon.setOnClickListener {
+            val intent = Intent(this, MatchingsActivity::class.java)
+            startActivity(intent)
+        }
+
+
+        profileIcon.setOnClickListener {
+            val intent = Intent(this, ProfileActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun loadSuggestions() {
@@ -82,6 +111,7 @@ class SearchProfileActivity : AppCompatActivity() {
                     val suggestions = response.body() ?: emptyList()
                     val adapter = ArrayAdapter(this@SearchProfileActivity, android.R.layout.simple_dropdown_item_1line, suggestions)
                     searchInput.setAdapter(adapter)
+                    searchInput.setDropDownHeight(500)
                     searchInput.showDropDown()
                 } else {
                     Toast.makeText(this@SearchProfileActivity, "Erro ao carregar sugestões", Toast.LENGTH_LONG).show()
@@ -93,6 +123,7 @@ class SearchProfileActivity : AppCompatActivity() {
             }
         })
     }
+
 
     private fun performSearch(query: String) {
         searchButton.isEnabled = false

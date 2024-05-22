@@ -2,58 +2,43 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/background_gradient"
     tools:context=".view.SearchProfileActivity">
-
-    <!-- Barra Superior -->
-    <RelativeLayout
-        android:id="@+id/relativeLayout"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="-1dp"
-        android:background="@drawable/top_bar_background">
-
-        <TextView
-            android:id="@+id/title_search"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="Pesquisar"
-            android:textColor="@android:color/white"
-            android:textSize="24sp"
-            android:textStyle="bold" />
-    </RelativeLayout>
-
-    <!-- Campo de Entrada de Texto com Sugestões -->
-    <AutoCompleteTextView
-        android:id="@+id/search_input"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/relativeLayout"
-        android:layout_margin="16dp"
-        android:hint="Digite uma área de interesse para pesquisar"
-        android:background="@drawable/edit_text_background"
-        android:padding="12dp"
-        android:completionThreshold="1" />
 
     <!-- Botão de Pesquisa -->
     <Button
         android:id="@+id/search_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/search_input"
         android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/button_background_white"
+        android:padding="15dp"
+        android:text="Pesquisar"
+        android:textColor="#1A188A"
+        android:textStyle="bold" />
+
+    <!-- Campo de Entrada de Texto com Sugestões -->
+    <AutoCompleteTextView
+        android:id="@+id/search_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/search_button"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:text="Pesquisar" />
+        android:background="@drawable/edit_text_background"
+        android:completionThreshold="1"
+        android:hint="Digite uma área de interesse para pesquisar"
+        android:padding="12dp"
+        android:textColor="#FFFFFF" />
 
     <!-- NestedScrollView para permitir rolagem -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nested_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_below="@id/search_button"
+        android:layout_below="@id/search_input"
         android:layout_above="@id/bottom_navigation"
         android:layout_margin="16dp">
 
@@ -85,55 +70,45 @@
     </androidx.core.widget.NestedScrollView>
 
     <!-- Barra Inferior -->
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="-4dp"
-        android:background="@drawable/bottom_navigation_background">
+        android:background="@drawable/background_gradient"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="0dp"
+        android:weightSum="4">
 
         <ImageView
             android:id="@+id/icon_academic"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginStart="43dp"
-            android:layout_marginBottom="32dp"
-            android:src="@drawable/home" />
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:scaleType="centerInside"
+            android:src="@drawable/icon_logo_footer" />
 
         <ImageView
             android:id="@+id/icon_star"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignParentBottom="true"
-            android:layout_marginStart="45dp"
-            android:layout_marginBottom="32dp"
-            android:layout_toEndOf="@id/icon_academic"
-            android:src="@drawable/star" />
-
-        <ImageView
-            android:id="@+id/icon_search"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignParentBottom="true"
-            android:layout_marginStart="52dp"
-            android:layout_marginBottom="32dp"
-            android:layout_toEndOf="@id/icon_star"
-            android:src="@drawable/pesquisar" />
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:scaleType="centerInside"
+            android:src="@drawable/icon_star" />
 
         <ImageView
             android:id="@+id/icon_profile"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginStart="63dp"
-            android:layout_marginEnd="48dp"
-            android:layout_marginBottom="32dp"
-            android:layout_toEndOf="@id/icon_search"
-            android:src="@drawable/perfil" />
-    </RelativeLayout>
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:scaleType="centerInside"
+            android:src="@drawable/icon_user" />
+    </LinearLayout>
+
 
 </RelativeLayout>

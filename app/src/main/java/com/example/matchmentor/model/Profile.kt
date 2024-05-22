@@ -10,5 +10,5 @@ data class Profile(
     val profissao: String?, // Para mentor
     val area_de_atuacao: String?, // Para mentor
     val descricao_pessoal: String?, // Para mentor
-    val foto: String?
+    val foto: String?,
 )

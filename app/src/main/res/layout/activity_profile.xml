@@ -1,0 +1,125 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_gradient"
+    tools:context=".view.ProfileActivity">
+
+    <ImageView
+        android:id="@+id/profile_image"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/icon_user" />
+
+    <TextView
+        android:id="@+id/profile_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_black"
+        android:text="Nome Sobrenome"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_below="@id/profile_image"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:id="@+id/profile_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_medium"
+        android:text="Tipo de Usuário"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:layout_below="@id/profile_name"
+        android:layout_marginTop="8dp"
+        android:layout_centerHorizontal="true" />
+
+    <EditText
+        android:id="@+id/area_de_atuacao_interesse"
+        android:layout_width="300dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="16dp"
+        android:hint="Área de Atuação/Interesse"
+        android:background="@drawable/edit_text_background"
+        android:padding="12dp"
+        android:fontFamily="@font/poppins_medium"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#BBBBBB"
+        android:layout_below="@id/profile_type"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_centerHorizontal="true" />
+
+    <EditText
+        android:id="@+id/descricao_pessoal"
+        android:layout_width="300dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="16dp"
+        android:hint="Descrição Pessoal"
+        android:background="@drawable/edit_text_background"
+        android:padding="12dp"
+        android:fontFamily="@font/poppins_medium"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#BBBBBB"
+        android:layout_below="@id/area_de_atuacao_interesse"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:id="@+id/edit_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/button_background_white"
+        android:padding="15dp"
+        android:text="Editar dados"
+        android:textColor="#1A188A"
+        android:textStyle="bold"
+        android:layout_below="@id/descricao_pessoal"
+        android:layout_centerHorizontal="true" />
+
+    <LinearLayout
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@drawable/background_gradient"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="-4dp"
+        android:weightSum="4">
+
+        <ImageView
+            android:id="@+id/icon_academic"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:scaleType="centerInside"
+            android:src="@drawable/icon_logo_footer" />
+
+        <ImageView
+            android:id="@+id/icon_star"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:scaleType="centerInside"
+            android:src="@drawable/icon_star" />
+
+        <ImageView
+            android:id="@+id/icon_search"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:scaleType="centerInside"
+            android:src="@drawable/icon_search" />
+
+    </LinearLayout>
+
+</RelativeLayout>

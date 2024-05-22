@@ -1,6 +1,7 @@
 package com.example.matchmentor.repository
 
 import com.example.matchmentor.model.Item
+import com.example.matchmentor.model.Match
 import com.example.matchmentor.model.Profile
 import retrofit2.Call
 import retrofit2.http.GET
@@ -25,4 +26,9 @@ interface ProfileService {
         @Query("userType") userType: String
     ): Call<List<String>>
 
+    @GET("matchings.php")
+    fun getMatchings(@Query("userId") userId: Int, @Query("userType") userType: String): Call<List<Match>>
+
+    @GET("profile.php")
+    fun getProfile(@Query("userId") userId: Int, @Query("userType") userType: String): Call<Profile>
 }
